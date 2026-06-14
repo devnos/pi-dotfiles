@@ -48,6 +48,26 @@ try {
     Pop-Location
 }
 
+# URL-based packages from settings.json
+# (e.g. themes on GitHub) — `pi install` clones them into
+# ~/.pi/agent/git/...; replay those for a fresh machine.
+Write-Host "==> Installing URL-based pi packages"
+$piCmd = Get-Command pi -ErrorAction SilentlyContinue
+if ($piCmd) {
+    $settingsRaw = Get-Content -Raw (Join-Path $PiAgentDir "settings.json")
+    if ($settingsRaw -match '"packages"\s*:\s*\[(.*?)\]' -and $matches[1]) {
+        $matches[1] -split ',' | ForEach-Object {
+            $pkg = ($_ -replace '[\s"]+', '')
+            if ($pkg -match '^(https?|git):') {
+                & pi install $pkg 2>$null | Out-Null
+                if ($LASTEXITCODE -ne 0) { Write-Host "    ! failed: $pkg" }
+            }
+        }
+    }
+} else {
+    Write-Host "    (skipping - 'pi' CLI not in PATH)"
+}
+
 Write-Host ""
 Write-Host "==> Reminder: create $PiAgentDir\auth.json manually" -ForegroundColor Yellow
 Write-Host "    Format:"

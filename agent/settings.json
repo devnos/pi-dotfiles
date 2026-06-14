@@ -8,7 +8,8 @@
     "npm:@playwright/mcp",
     "npm:pi-mcp-adapter",
     "npm:pi-web-access",
-    "npm:@wierdbytes/pi-statusline"
+    "npm:@wierdbytes/pi-statusline",
+    "https://github.com/XYenon/catppuccin-pi-coding-agent"
   ],
   "images": {
     "blockImages": false
@@ -20,7 +21,7 @@
   },
   "enableInstallTelemetry": false,
   "defaultProjectTrust": "ask",
-  "theme": "dark",
+  "theme": "catppuccin-mocha-mauve",
   "showHardwareCursor": true,
   "transport": "auto",
   "quietStartup": false,
