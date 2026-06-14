@@ -9,7 +9,7 @@
     "npm:pi-mcp-adapter",
     "npm:pi-web-access",
     "npm:@wierdbytes/pi-statusline",
-    "https://github.com/XYenon/catppuccin-pi-coding-agent"
+    "https://github.com/victor-software-house/pi-curated-themes"
   ],
   "images": {
     "blockImages": false
@@ -21,7 +21,7 @@
   },
   "enableInstallTelemetry": false,
   "defaultProjectTrust": "ask",
-  "theme": "catppuccin-mocha-mauve",
+  "theme": "catppuccin-mocha",
   "showHardwareCursor": true,
   "transport": "auto",
   "quietStartup": false,
