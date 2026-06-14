@@ -7,6 +7,7 @@
     "npm:@upstash/context7-mcp",
     "npm:@playwright/mcp",
     "npm:pi-mcp-adapter",
+    "npm:my-pi-themes",
     "npm:pi-web-access",
     "npm:@wierdbytes/pi-statusline"
   ],
@@ -20,7 +21,7 @@
   },
   "enableInstallTelemetry": false,
   "defaultProjectTrust": "ask",
-  "theme": "dark",
+  "theme": "onedark-darker",
   "showHardwareCursor": true,
   "transport": "auto",
   "quietStartup": false,
