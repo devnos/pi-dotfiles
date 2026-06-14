@@ -51,17 +51,33 @@ try {
 # URL-based packages from settings.json
 # (e.g. themes on GitHub) — `pi install` clones them into
 # ~/.pi/agent/git/...; replay those for a fresh machine.
+# Fallback to `git clone` when `pi install` fails (e.g. dev hooks).
 Write-Host "==> Installing URL-based pi packages"
 $piCmd = Get-Command pi -ErrorAction SilentlyContinue
+function Install-UrlPackage {
+    param([string]$Pkg)
+    if ($Pkg -notmatch '^(https?|git):') { return }
+    & pi install $Pkg 2>$null | Out-Null
+    if ($LASTEXITCODE -eq 0) { return }
+    Write-Host "    ! pi install failed for $Pkg - trying git clone"
+    if ($Pkg -match '^https?://github\.com/([^/]+)/([^/]+?)(?:\.git)?/?$') {
+        $owner = $matches[1]
+        $repo  = $matches[2]
+        $dest  = Join-Path $PiAgentDir (Join-Path "git" (Join-Path "github.com" (Join-Path $owner $repo)))
+        if (-not (Test-Path $dest)) {
+            git clone --depth 1 $Pkg $dest 2>$null | Out-Null
+            if ($LASTEXITCODE -ne 0) { Write-Host "    ! git clone also failed: $Pkg" }
+        }
+    } else {
+        Write-Host "    ! no git fallback for non-GitHub URL: $Pkg"
+    }
+}
 if ($piCmd) {
     $settingsRaw = Get-Content -Raw (Join-Path $PiAgentDir "settings.json")
     if ($settingsRaw -match '"packages"\s*:\s*\[(.*?)\]' -and $matches[1]) {
         $matches[1] -split ',' | ForEach-Object {
             $pkg = ($_ -replace '[\s"]+', '')
-            if ($pkg -match '^(https?|git):') {
-                & pi install $pkg 2>$null | Out-Null
-                if ($LASTEXITCODE -ne 0) { Write-Host "    ! failed: $pkg" }
-            }
+            Install-UrlPackage -Pkg $pkg
         }
     }
 } else {

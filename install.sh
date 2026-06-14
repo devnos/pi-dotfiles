@@ -41,14 +41,30 @@ install_file agent/npm/package-lock.json "$PI_AGENT_DIR/npm/package-lock.json"
 # Some packages are referenced by URL in settings.json (e.g. themes on
 # GitHub). `pi install` clones them into ~/.pi/agent/git/...; we replay
 # those here so a fresh machine ends up identical to the source.
+# If `pi install` fails (e.g. dev postinstall hooks like lefthook), fall
+# back to a plain `git clone` into the same target directory.
 echo "==> Installing URL-based pi packages"
+pi_install_url() {
+  local pkg="$1"
+  case "$pkg" in
+    http://*|https://*|git:*)
+      if pi install "$pkg" >/dev/null 2>&1; then
+        return 0
+      fi
+      echo "    ! pi install failed for $pkg — trying git clone"
+      if [[ "$pkg" =~ ^https?://github\.com/([^/]+)/([^/]+?)(\.git)?/?$ ]]; then
+        local owner="${BASH_REMATCH[1]}"
+        local repo="${BASH_REMATCH[2]}"
+        local dest="$PI_AGENT_DIR/git/github.com/$owner/$repo"
+        [[ -d "$dest" ]] || git clone --depth 1 "$pkg" "$dest" >/dev/null 2>&1 \
+          || echo "    ! git clone also failed: $pkg"
+      else
+        echo "    ! no git fallback for non-GitHub URL: $pkg"
+      fi
+      ;;
+  esac
+}
 if command -v pi >/dev/null 2>&1; then
-  pi_install_url() {
-    local pkg="$1"
-    case "$pkg" in
-      http://*|https://*|git:*) pi install "$pkg" >/dev/null 2>&1 || echo "    ! failed: $pkg" ;;
-    esac
-  }
   while IFS= read -r pkg; do
     [[ -z "$pkg" ]] && continue
     pi_install_url "$pkg"
