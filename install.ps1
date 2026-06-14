@@ -29,6 +29,20 @@ Install-File "agent\extensions\prompt-arrow.js"   (Join-Path $PiAgentDir "extens
 Install-File "agent\wierd-statusline\events.json" (Join-Path $PiAgentDir "wierd-statusline\events.json")
 Install-File "agent\AGENTS.md"                    (Join-Path $PiAgentDir "AGENTS.md")
 
+# Themes: bundle all *.json from agent/themes/ into ~/.pi/agent/themes/.
+# These are loaded as global defaults by pi's resource-loader BEFORE
+# the URL-package loop runs, so a 'theme' value in settings.json will
+# always be found on startup (no silent dark-fallback race).
+$themesSrc = Join-Path $RepoDir "agent\themes"
+if (Test-Path $themesSrc) {
+    Write-Host "==> Copying bundled themes"
+    $themesDst = Join-Path $PiAgentDir "themes"
+    New-Item -ItemType Directory -Force -Path $themesDst | Out-Null
+    Get-ChildItem -Path $themesSrc -Filter "*.json" | ForEach-Object {
+        Copy-Item -Path $_.FullName -Destination $themesDst -Force
+    }
+}
+
 # mcp.json: replace ${PI_AGENT_DIR} with the resolved path
 # On Windows the JSON uses forward slashes, which is fine for node.
 Write-Host "==> Rendering mcp.json from template"
@@ -83,18 +97,6 @@ if ($piCmd) {
 } else {
     Write-Host "    (skipping - 'pi' CLI not in PATH)"
 }
-
-# Copy bundled themes into the global themes dir.
-# Workaround for a race in pi's initTheme(): theme packages loaded from
-# URL sources may not be registered yet when initTheme() runs at startup,
-# so loadTheme("my-theme") throws and pi silently falls back to "dark".
-# Copying the .json files into the global themes dir ensures they're
-# discovered first, before initTheme() runs.
-Write-Host "==> Copying bundled themes into global themes dir"
-$themesDir = Join-Path $PiAgentDir "themes"
-New-Item -ItemType Directory -Force -Path $themesDir | Out-Null
-Get-ChildItem -Path (Join-Path $PiAgentDir "git\github.com\*\pi-curated-themes\themes") -Filter "*.json" -ErrorAction SilentlyContinue |
-    ForEach-Object { Copy-Item -Path $_.FullName -Destination $themesDir -Force }
 
 Write-Host ""
 Write-Host "==> Reminder: create $PiAgentDir\auth.json manually" -ForegroundColor Yellow

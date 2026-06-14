@@ -8,8 +8,7 @@
     "npm:@playwright/mcp",
     "npm:pi-mcp-adapter",
     "npm:pi-web-access",
-    "npm:@wierdbytes/pi-statusline",
-    "https://github.com/victor-software-house/pi-curated-themes"
+    "npm:@wierdbytes/pi-statusline"
   ],
   "images": {
     "blockImages": false

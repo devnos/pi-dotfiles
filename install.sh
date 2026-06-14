@@ -25,6 +25,17 @@ install_file agent/extensions/prompt-arrow.js "$PI_AGENT_DIR/extensions/prompt-a
 install_file agent/wierd-statusline/events.json "$PI_AGENT_DIR/wierd-statusline/events.json"
 install_file agent/AGENTS.md            "$PI_AGENT_DIR/AGENTS.md"
 
+# Themes: bundle all *.json from agent/themes/ into ~/.pi/agent/themes/.
+# These are loaded as global defaults by pi's resource-loader BEFORE
+# the URL-package loop runs, so a 'theme' value in settings.json will
+# always be found on startup (no silent dark-fallback race).
+if compgen -G "$REPO_DIR/agent/themes/*.json" >/dev/null; then
+  echo "==> Copying bundled themes"
+  mkdir -p "$PI_AGENT_DIR/themes"
+  install_file agent/themes/*.json "$PI_AGENT_DIR/themes/" 2>/dev/null \
+    || cp -n "$REPO_DIR"/agent/themes/*.json "$PI_AGENT_DIR/themes/"
+fi
+
 # --- mcp.json (rendered from template) ---------------------------------
 echo "==> Rendering mcp.json from template"
 sed "s|\${PI_AGENT_DIR}|$PI_AGENT_DIR|g" \
@@ -73,21 +84,6 @@ if command -v pi >/dev/null 2>&1; then
 else
   echo "    (skipping — 'pi' CLI not in PATH)"
 fi
-
-# --- copy bundled themes into global themes dir --------------------------
-# Workaround for a race in pi's initTheme(): theme packages loaded from
-# URL sources (e.g. pi-curated-themes cloned into ~/.pi/agent/git/...)
-# may not be registered yet when initTheme() runs at startup, so
-# loadTheme("my-theme") throws and pi silently falls back to "dark".
-# Copying the .json files into the global themes dir ensures they're
-# discovered first, before initTheme() runs.
-echo "==> Copying bundled themes into global themes dir"
-mkdir -p "$PI_AGENT_DIR/themes"
-shopt -s nullglob
-for theme_src in "$PI_AGENT_DIR"/git/github.com/*/pi-curated-themes/themes/*.json; do
-  cp -n "$theme_src" "$PI_AGENT_DIR/themes/" || true
-done
-shopt -u nullglob
 
 # --- auth.json (must be created manually) -------------------------------
 echo
