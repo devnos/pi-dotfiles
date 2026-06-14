@@ -29,20 +29,6 @@ Install-File "agent\extensions\prompt-arrow.js"   (Join-Path $PiAgentDir "extens
 Install-File "agent\wierd-statusline\events.json" (Join-Path $PiAgentDir "wierd-statusline\events.json")
 Install-File "agent\AGENTS.md"                    (Join-Path $PiAgentDir "AGENTS.md")
 
-# Themes: bundle all *.json from agent/themes/ into ~/.pi/agent/themes/.
-# These are loaded as global defaults by pi's resource-loader BEFORE
-# the URL-package loop runs, so a 'theme' value in settings.json will
-# always be found on startup (no silent dark-fallback race).
-$themesSrc = Join-Path $RepoDir "agent\themes"
-if (Test-Path $themesSrc) {
-    Write-Host "==> Copying bundled themes"
-    $themesDst = Join-Path $PiAgentDir "themes"
-    New-Item -ItemType Directory -Force -Path $themesDst | Out-Null
-    Get-ChildItem -Path $themesSrc -Filter "*.json" | ForEach-Object {
-        Copy-Item -Path $_.FullName -Destination $themesDst -Force
-    }
-}
-
 # mcp.json: replace ${PI_AGENT_DIR} with the resolved path
 # On Windows the JSON uses forward slashes, which is fine for node.
 Write-Host "==> Rendering mcp.json from template"

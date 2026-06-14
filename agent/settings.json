@@ -20,7 +20,7 @@
   },
   "enableInstallTelemetry": false,
   "defaultProjectTrust": "ask",
-  "theme": "catppuccin-mocha",
+  "theme": "dark",
   "showHardwareCursor": true,
   "transport": "auto",
   "quietStartup": false,
