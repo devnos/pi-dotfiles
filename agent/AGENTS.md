@@ -238,26 +238,49 @@
 
 ---
 
-# PI-WEBAIO (если доступно)
+# PI-WEB-ACCESS
 
-Расширение `pi-webaio` — основной инструмент для работы с вебом. **Без API-ключей.**
+Расширение `pi-web-access` (npm-пакет `pi-web-access` от nicobailon) — основной инструмент для работы с вебом. Оно **переопределяет** встроенные `web_search` / `code_search` / `fetch_content` / `get_search_content` через `pi.registerTool` (см. `node_modules/pi-web-access/index.ts`, строки 1089, 1532, 1575, 1820). Когда ты вызываешь эти tools — это уже его реализация, не встроенная.
+
+## Провайдеры
+
+Perplexity AI, Exa, Gemini (web/API). Конфиг: `~/.pi/web-search.json`:
+
+```json
+{ "provider": "perplexity" | "exa" | "gemini" | "auto" }
+```
+
+По умолчанию — `auto`.
 
 ## Поиск
 
-Для любого поиска в интернете используй `aio-websearch` (5 движков параллельно: DDG, Brave, Yahoo, Bing, Google). Это приоритетный способ.
+Используй `web_search` с `queries: [...]` (2–4 угла для широкого охвата) — провайдер сам синтезирует ответ с citations. Не вызывай `web_search` с одной строкой `query` — теряешь параллельность.
 
 ## Чтение конкретных URL
 
-* одна страница — `aio-webfetch`;
-* целый сайт / документация — сначала `aio-webmap` (обнаружить), затем `aio-webpull` (скачать всё);
-* уже скачанный контент в этой сессии — `aio-webcontent` или `aio-webresult`.
+* одна страница — `fetch_content({ url })` (извлекает markdown; для YouTube — транскрипт, для GitHub — содержимое репо, для PDF — текст);
+* видео (YouTube/локальное) — `fetch_content` с `prompt` для фокуса;
+* несколько URL параллельно — несколько `fetch_content` в одном блоке.
+
+## Сохранённый контент
+
+После `web_search` / `fetch_content` полный текст сохраняется в сессии. Достать через `get_search_content({ responseId, url })`.
+
+## Скиллы и команды
+
+* Скилл `librarian` — research open-source библиотек с GitHub permalinks (evidence-backed citations на конкретные строки кода). Загружай через `read` по пути из системного промпта, когда задача — понять внутренности библиотеки.
+* Команда `/websearch` — открывает web-search curator (UI с выбором провайдера и summary draft).
+
+## Capabilities
+
+Web search, URL fetching, GitHub repo cloning, PDF extraction, YouTube video understanding, local video analysis.
 
 ## Правила
 
-* **Не выдумывай результаты поиска** — только реальный вывод `aio-websearch` / `aio-webfetch`.
-* **Не ставь другие web-search скиллы** (например, `exa-web-search-free`, `brave-search` через mcporter) — `pi-webaio` покрывает все их сценарии.
-* Если `aio-websearch` вернул пустой результат — попробуй переформулировать запрос или используй `aio-webfetch` напрямую на известный URL. Не подключай другие поисковые движки в обход.
-* Длинные страницы автоматически суммируются (Gemini) — полный текст сохраняется на диск, при необходимости читай через `aio-webcontent`.
+* **Не выдумывай результаты поиска** — только реальный вывод `web_search` / `fetch_content`. Если вернули мало — переформулируй запрос или возьми URL напрямую через `fetch_content`.
+* **Не подключай другие web-search инструменты в обход** (например, отдельные MCP-серверы с web-search) — это дублирует функциональность и ломает citations.
+* Для research open-source библиотек с цитатами на код — используй скилл `librarian` (он даёт permalinks на конкретные строки).
+* Не используй `web_search` для проверки своего знания — он дорогой. Если точно знаешь ответ (синтаксис, сигнатуру API) — отвечай сразу.
 
 ---
 
