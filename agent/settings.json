@@ -1,4 +1,5 @@
 {
+  "lastChangelogVersion": "0.79.3",
   "defaultProvider": "minimax",
   "defaultModel": "MiniMax-M3",
   "defaultThinkingLevel": "high",
@@ -7,9 +8,11 @@
     "npm:@upstash/context7-mcp",
     "npm:@playwright/mcp",
     "npm:pi-mcp-adapter",
-    "npm:my-pi-themes",
     "npm:pi-web-access",
-    "npm:@wierdbytes/pi-statusline"
+    "npm:@wierdbytes/pi-statusline",
+    "npm:my-pi-themes",
+    "npm:@tintinweb/pi-subagents",
+    "npm:@juicesharp/rpiv-ask-user-question"
   ],
   "images": {
     "blockImages": false
@@ -24,6 +27,7 @@
   "theme": "onedark-darker",
   "showHardwareCursor": true,
   "transport": "auto",
+  "httpIdleTimeoutMs": 0,
   "quietStartup": false,
   "treeFilterMode": "default"
 }
