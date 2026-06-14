@@ -17,6 +17,9 @@ const BASH_PREFIX = "! ";
 const INDENT = "  "; // 2-char continuation indent (matches prefix width)
 const BORDER_RE = /^[\u2500-\u257f]+\s*$/;
 const GREEN = (s) => "\x1b[32m" + s + "\x1b[39m"; // basic ANSI green
+// Note: pi-statusline strips the editor's top/bottom border, so a coloured
+// border is invisible. The real visual indicator is the prefix glyph itself
+// (❯ vs !), so we colour the "!" green when bash-mode is active.
 
 export default function (pi) {
 	pi.on("session_start", (_event, ctx) => {
@@ -94,7 +97,12 @@ export default function (pi) {
 					return lines.map((line, i) => {
 						const stripped = String(line).replace(/\x1b\[[0-9;]*m/g, "");
 						if (BORDER_RE.test(stripped)) return line;
-						const prefix = i === 0 ? (state.bashMode ? BASH_PREFIX : NORMAL_PREFIX) : INDENT;
+						const prefix =
+							i === 0
+								? state.bashMode
+									? GREEN(BASH_PREFIX)
+									: NORMAL_PREFIX
+								: INDENT;
 						return prefix + line;
 					});
 				};
