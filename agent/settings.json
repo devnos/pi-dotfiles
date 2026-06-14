@@ -1,0 +1,28 @@
+{
+  "defaultProvider": "minimax",
+  "defaultModel": "MiniMax-M3",
+  "defaultThinkingLevel": "high",
+  "packages": [
+    "npm:@barlevalon/find-skills-skill",
+    "npm:@upstash/context7-mcp",
+    "npm:@playwright/mcp",
+    "npm:pi-mcp-adapter",
+    "npm:pi-web-access",
+    "npm:@wierdbytes/pi-statusline"
+  ],
+  "images": {
+    "blockImages": false
+  },
+  "editorPaddingX": 0,
+  "terminal": {
+    "showTerminalProgress": true,
+    "clearOnShrink": true
+  },
+  "enableInstallTelemetry": false,
+  "defaultProjectTrust": "ask",
+  "theme": "dark",
+  "showHardwareCursor": true,
+  "transport": "auto",
+  "quietStartup": false,
+  "treeFilterMode": "default"
+}

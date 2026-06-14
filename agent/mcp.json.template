@@ -1,0 +1,20 @@
+{
+  "mcpServers": {
+    "context7": {
+      "command": "node",
+      "args": [
+        "${PI_AGENT_DIR}/npm/node_modules/@upstash/context7-mcp/dist/index.js",
+        "--transport",
+        "stdio"
+      ],
+      "directTools": true
+    },
+    "playwright": {
+      "command": "node",
+      "args": [
+        "${PI_AGENT_DIR}/npm/node_modules/@playwright/mcp/cli.js"
+      ],
+      "directTools": true
+    }
+  }
+}

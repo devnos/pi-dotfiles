@@ -1,0 +1,12 @@
+{
+  "name": "pi-extensions",
+  "private": true,
+  "dependencies": {
+    "@barlevalon/find-skills-skill": "^0.1.0",
+    "@playwright/mcp": "^0.0.76",
+    "@upstash/context7-mcp": "^3.2.1",
+    "@wierdbytes/pi-statusline": "^0.7.0",
+    "pi-mcp-adapter": "^2.10.0",
+    "pi-web-access": "^0.10.7"
+  }
+}
