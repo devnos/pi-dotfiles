@@ -84,6 +84,18 @@ if ($piCmd) {
     Write-Host "    (skipping - 'pi' CLI not in PATH)"
 }
 
+# Copy bundled themes into the global themes dir.
+# Workaround for a race in pi's initTheme(): theme packages loaded from
+# URL sources may not be registered yet when initTheme() runs at startup,
+# so loadTheme("my-theme") throws and pi silently falls back to "dark".
+# Copying the .json files into the global themes dir ensures they're
+# discovered first, before initTheme() runs.
+Write-Host "==> Copying bundled themes into global themes dir"
+$themesDir = Join-Path $PiAgentDir "themes"
+New-Item -ItemType Directory -Force -Path $themesDir | Out-Null
+Get-ChildItem -Path (Join-Path $PiAgentDir "git\github.com\*\pi-curated-themes\themes") -Filter "*.json" -ErrorAction SilentlyContinue |
+    ForEach-Object { Copy-Item -Path $_.FullName -Destination $themesDir -Force }
+
 Write-Host ""
 Write-Host "==> Reminder: create $PiAgentDir\auth.json manually" -ForegroundColor Yellow
 Write-Host "    Format:"
