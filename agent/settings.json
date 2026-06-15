@@ -27,7 +27,6 @@
   "theme": "onedark-darker",
   "showHardwareCursor": true,
   "transport": "auto",
-  "httpIdleTimeoutMs": 0,
   "quietStartup": false,
   "treeFilterMode": "default"
 }
