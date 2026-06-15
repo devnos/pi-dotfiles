@@ -13,11 +13,14 @@ pi-dotfiles/
 ├── install.ps1               # Windows (PowerShell)
 └── agent/                    # maps to ~/.pi/agent/
     ├── settings.json
+    ├── keybindings.json
     ├── mcp.json.template     # rendered to mcp.json with ${PI_AGENT_DIR} substituted
     ├── models.json
     ├── AGENTS.md             # personal instructions for the agent
     ├── extensions/
-    │   └── prompt-arrow.js   # adds ❯ prefix + indent to input editor
+    │   ├── prompt-arrow.js       # adds ❯ prefix + indent to input editor
+    │   ├── prompt-enhancer.ts    # /improve (Ctrl+Shift+E) rewrites the current prompt via LLM
+    │   └── parallel-shortcut.ts  # /parallel <type1> "task" -> <type2> "task" spawns N subagents
     ├── wierd-statusline/
     │   └── events.json       # pi-statusline config (iconSet, layout, …)
     └── npm/
@@ -87,7 +90,9 @@ When you tweak settings, add an extension, or change packages:
 2. Copy the changed files into this repo:
    ```bash
    cp ~/.pi/agent/settings.json ~/Documents/DEV/pi-dotfiles/agent/settings.json
+   cp ~/.pi/agent/keybindings.json ~/Documents/DEV/pi-dotfiles/agent/keybindings.json
    cp ~/.pi/agent/extensions/*.js ~/Documents/DEV/pi-dotfiles/agent/extensions/
+   cp ~/.pi/agent/extensions/*.ts ~/Documents/DEV/pi-dotfiles/agent/extensions/
    # etc.
    ```
 3. `git add` + `git commit` + `git push`

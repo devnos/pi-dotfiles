@@ -11,7 +11,7 @@
     "npm:pi-web-access",
     "npm:@wierdbytes/pi-statusline",
     "npm:my-pi-themes",
-    "npm:@tintinweb/pi-subagents",
+    "npm:@gotgenes/pi-subagents",
     "npm:@juicesharp/rpiv-ask-user-question",
     "npm:pi-btw"
   ],

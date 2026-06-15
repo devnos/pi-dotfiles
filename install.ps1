@@ -13,6 +13,7 @@ Write-Host "==> Target: $PiAgentDir"
 New-Item -ItemType Directory -Force -Path (Join-Path $PiAgentDir "extensions")      | Out-Null
 New-Item -ItemType Directory -Force -Path (Join-Path $PiAgentDir "wierd-statusline") | Out-Null
 New-Item -ItemType Directory -Force -Path (Join-Path $PiAgentDir "npm")             | Out-Null
+New-Item -ItemType Directory -Force -Path (Join-Path $PiAgentDir "skills")          | Out-Null
 
 function Install-File($RelSrc, $AbsDst) {
     $Src = Join-Path $RepoDir $RelSrc
@@ -25,7 +26,10 @@ function Install-File($RelSrc, $AbsDst) {
 Write-Host "==> Copying config files"
 Install-File "agent\settings.json"                (Join-Path $PiAgentDir "settings.json")
 Install-File "agent\models.json"                  (Join-Path $PiAgentDir "models.json")
+Install-File "agent\keybindings.json"             (Join-Path $PiAgentDir "keybindings.json")
 Install-File "agent\extensions\prompt-arrow.js"   (Join-Path $PiAgentDir "extensions\prompt-arrow.js")
+Install-File "agent\extensions\prompt-enhancer.ts" (Join-Path $PiAgentDir "extensions\prompt-enhancer.ts")
+Install-File "agent\extensions\parallel-shortcut.ts" (Join-Path $PiAgentDir "extensions\parallel-shortcut.ts")
 Install-File "agent\wierd-statusline\events.json" (Join-Path $PiAgentDir "wierd-statusline\events.json")
 Install-File "agent\AGENTS.md"                    (Join-Path $PiAgentDir "AGENTS.md")
 

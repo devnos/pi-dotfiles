@@ -3,9 +3,13 @@
   "private": true,
   "dependencies": {
     "@barlevalon/find-skills-skill": "^0.1.0",
+    "@gotgenes/pi-subagents": "^16.2.1",
+    "@juicesharp/rpiv-ask-user-question": "^1.20.0",
     "@playwright/mcp": "^0.0.76",
     "@upstash/context7-mcp": "^3.2.1",
     "@wierdbytes/pi-statusline": "^0.7.0",
+    "my-pi-themes": "^1.0.0",
+    "pi-btw": "^0.4.1",
     "pi-mcp-adapter": "^2.10.0",
     "pi-web-access": "^0.10.7"
   }

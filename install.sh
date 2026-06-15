@@ -8,7 +8,7 @@ REPO_DIR="$(cd "$(dirname "$0")" && pwd)"
 PI_AGENT_DIR="${PI_AGENT_DIR:-$HOME/.pi/agent}"
 
 echo "==> Target: $PI_AGENT_DIR"
-mkdir -p "$PI_AGENT_DIR/extensions" "$PI_AGENT_DIR/wierd-statusline" "$PI_AGENT_DIR/npm"
+mkdir -p "$PI_AGENT_DIR/extensions" "$PI_AGENT_DIR/wierd-statusline" "$PI_AGENT_DIR/npm" "$PI_AGENT_DIR/skills"
 
 # --- settings.json (clean) ----------------------------------------------
 install_file() {
@@ -21,7 +21,10 @@ install_file() {
 echo "==> Copying config files"
 install_file agent/settings.json        "$PI_AGENT_DIR/settings.json"
 install_file agent/models.json          "$PI_AGENT_DIR/models.json"
+install_file agent/keybindings.json     "$PI_AGENT_DIR/keybindings.json"
 install_file agent/extensions/prompt-arrow.js "$PI_AGENT_DIR/extensions/prompt-arrow.js"
+install_file agent/extensions/prompt-enhancer.ts "$PI_AGENT_DIR/extensions/prompt-enhancer.ts"
+install_file agent/extensions/parallel-shortcut.ts "$PI_AGENT_DIR/extensions/parallel-shortcut.ts"
 install_file agent/wierd-statusline/events.json "$PI_AGENT_DIR/wierd-statusline/events.json"
 install_file agent/AGENTS.md            "$PI_AGENT_DIR/AGENTS.md"
 
