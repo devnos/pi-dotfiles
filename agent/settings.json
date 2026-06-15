@@ -1,5 +1,5 @@
 {
-  "lastChangelogVersion": "0.79.3",
+  "lastChangelogVersion": "0.79.4",
   "defaultProvider": "minimax",
   "defaultModel": "MiniMax-M3",
   "defaultThinkingLevel": "high",
@@ -12,7 +12,8 @@
     "npm:@wierdbytes/pi-statusline",
     "npm:my-pi-themes",
     "npm:@tintinweb/pi-subagents",
-    "npm:@juicesharp/rpiv-ask-user-question"
+    "npm:@juicesharp/rpiv-ask-user-question",
+    "npm:pi-btw"
   ],
   "images": {
     "blockImages": false
@@ -28,5 +29,6 @@
   "showHardwareCursor": true,
   "transport": "auto",
   "quietStartup": false,
-  "treeFilterMode": "default"
+  "treeFilterMode": "default",
+  "httpIdleTimeoutMs": 300000
 }
