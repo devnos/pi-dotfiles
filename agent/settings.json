@@ -11,9 +11,9 @@
     "npm:pi-web-access",
     "npm:@wierdbytes/pi-statusline",
     "npm:my-pi-themes",
-    "npm:@gotgenes/pi-subagents",
     "npm:@juicesharp/rpiv-ask-user-question",
-    "npm:pi-btw"
+    "npm:pi-btw",
+    "npm:@gotgenes/pi-subagents"
   ],
   "images": {
     "blockImages": false
@@ -28,7 +28,21 @@
   "theme": "onedark-darker",
   "showHardwareCursor": true,
   "transport": "auto",
+  "httpIdleTimeoutMs": 300000,
   "quietStartup": false,
   "treeFilterMode": "default",
-  "httpIdleTimeoutMs": 300000
+  "hideThinkingBlock": false,
+  "compaction": {
+    "enabled": true,
+    "reserveTokens": 65536,
+    "keepRecentTokens": 16000
+  },
+  "steeringMode": "one-at-a-time",
+  "collapseChangelog": false,
+  "warnings": {
+    "anthropicExtraUsage": false
+  },
+  "retry": {
+    "enabled": true
+  }
 }
