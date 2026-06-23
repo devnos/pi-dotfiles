@@ -27,6 +27,7 @@ Write-Host "==> Copying config files"
 Install-File "agent\settings.json"                (Join-Path $PiAgentDir "settings.json")
 Install-File "agent\models.json"                  (Join-Path $PiAgentDir "models.json")
 Install-File "agent\keybindings.json"             (Join-Path $PiAgentDir "keybindings.json")
+Install-File "agent\extensions\claude-style-statusline.ts" (Join-Path $PiAgentDir "extensions\claude-style-statusline.ts")
 Install-File "agent\extensions\prompt-arrow.js"   (Join-Path $PiAgentDir "extensions\prompt-arrow.js")
 Install-File "agent\extensions\prompt-enhancer.ts" (Join-Path $PiAgentDir "extensions\prompt-enhancer.ts")
 Install-File "agent\extensions\parallel-shortcut.ts" (Join-Path $PiAgentDir "extensions\parallel-shortcut.ts")

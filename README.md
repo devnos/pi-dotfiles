@@ -18,6 +18,7 @@ pi-dotfiles/
     ├── models.json
     ├── AGENTS.md             # personal instructions for the agent
     ├── extensions/
+    │   ├── claude-style-statusline.ts  # Claude-style status line above editor (model, cwd, ctx%, 5h/7d quota, ticks every 1s)
     │   ├── prompt-arrow.js       # adds ❯ prefix + indent to input editor
     │   ├── prompt-enhancer.ts    # /improve (Ctrl+Shift+E) rewrites the current prompt via LLM
     │   └── parallel-shortcut.ts  # /parallel <type1> "task" -> <type2> "task" spawns N subagents

@@ -1,5 +1,5 @@
 {
-  "lastChangelogVersion": "0.79.4",
+  "lastChangelogVersion": "0.79.10",
   "defaultProvider": "minimax",
   "defaultModel": "MiniMax-M3",
   "defaultThinkingLevel": "high",
@@ -9,11 +9,17 @@
     "npm:@playwright/mcp",
     "npm:pi-mcp-adapter",
     "npm:pi-web-access",
-    "npm:@wierdbytes/pi-statusline",
     "npm:my-pi-themes",
     "npm:@juicesharp/rpiv-ask-user-question",
     "npm:pi-btw",
-    "npm:@gotgenes/pi-subagents"
+    "npm:@gotgenes/pi-subagents",
+    "npm:@krone9/pi-superpowers"
+  ],
+  "extensions": [
+    "extensions/claude-style-statusline.ts",
+    "extensions/prompt-arrow.js",
+    "extensions/prompt-enhancer.ts",
+    "extensions/parallel-shortcut.ts"
   ],
   "images": {
     "blockImages": false

@@ -2,20 +2,22 @@
 //
 // Modes:
 //   normal     - prompt is "❯ " (default)
-//   bash       - prompt is "!" green, "!" prefix added on submit (result
-//                goes into LLM context). Toggled on by pressing "!" on an
+//   bash       - prompt is "! " green, "!" prefix added on submit (result
+//                goes to LLM context). Toggled on by pressing "!" on an
 //                empty line.
-//   bash-x     - prompt is "!" yellow, "!!" prefix added on submit (result
+//   bash-x     - prompt is "! " yellow, "!!" prefix added on submit (result
 //                stays OUT of LLM context). Toggled on by pressing "!"
-//                twice in a row on an empty line (matches pi's !! prefix).
+//                twice in a row on an empty line.
 //
 // Tapping Backspace on an empty line in either bash variant exits to normal.
 //
-// Defer registration with setTimeout(0) so we run AFTER pi's runtime has
-// set up the default editor (getEditorComponent() returns null if called
-// too early). The setTimeout callback wraps ctx.ui access in try/catch
-// because a session reload between session_start and the setTimeout firing
-// would otherwise mark the captured ctx as stale and throw.
+// Заменяет редактор pi на свой CustomEditor (как wierd-statusline делает).
+// onSubmit перехватываем через Object.defineProperty на инстансе (не через
+// class accessor) — jiti-транспайлер иногда не цепляет getter/setter с
+// прототипа кросс-модульно, а собственный property descriptor на инстансе
+// гарантированно срабатывает при `obj.onSubmit = ...` от pi.
+
+import { CustomEditor } from "@earendil-works/pi-coding-agent";
 
 const NORMAL_PREFIX = "❯ ";
 const BASH_PREFIX = "! ";
@@ -24,112 +26,111 @@ const BORDER_RE = /^[\u2500-\u257f]+\s*$/;
 const GREEN = (s) => "\x1b[32m" + s + "\x1b[39m";
 const YELLOW = (s) => "\x1b[33m" + s + "\x1b[39m";
 
+/**
+ * Кастомный редактор: рендерит `❯ ` (или `! ` в bash-режиме) перед
+ * первой строкой ввода, `  ` перед продолжениями. Bash-режим
+ * переключается клавишей `!` на пустой строке; backspace на пустой
+ * строке возвращает в normal. На submit добавляет префикс `!` или `!!`.
+ */
+class PromptArrowEditor extends CustomEditor {
+	constructor(tui, theme, keybindings) {
+		super(tui, theme, keybindings);
+		this._mode = "normal";
+		this._realSubmit = undefined;
+	}
+
+	_setMode(newMode) {
+		if (this._mode === newMode) return;
+		this._mode = newMode;
+		if (typeof this.invalidate === "function") this.invalidate();
+	}
+
+	// Перехватываем submit через defineProperty на инстансе, потому что
+	// class-аксессоры на прототипе надёжно не подхватываются jiti при
+	// кросс-модульной загрузке (setEditorComponent из pi, класс из
+	// расширения — разные jiti-инстансы, instanceof не работает, и
+	// сеттер на прототипе теряется).
+	_initSubmitInterceptor() {
+		const self = this;
+		Object.defineProperty(this, "onSubmit", {
+			configurable: true,
+			enumerable: true,
+			get() {
+				const original = self._realSubmit;
+				if (!original) return undefined;
+				return (text) => {
+					if (self._mode === "bash") {
+						self._setMode("normal");
+						return original("!" + text);
+					}
+					if (self._mode === "bash-x") {
+						self._setMode("normal");
+						return original("!!" + text);
+					}
+					return original(text);
+				};
+			},
+			set(handler) {
+				self._realSubmit = handler;
+			},
+		});
+	}
+
+	handleInput(data) {
+		const empty = (this.getText?.() ?? "") === "";
+		if (empty && data === "!") {
+			if (this._mode === "normal") this._setMode("bash");
+			else if (this._mode === "bash") this._setMode("bash-x");
+			else this._setMode("normal");
+			return;
+		}
+		if (
+			this._mode !== "normal" &&
+			empty &&
+			(data === "\x7f" || data === "\b" || data === "backspace")
+		) {
+			this._setMode("normal");
+			return;
+		}
+		return super.handleInput(data);
+	}
+
+	render(width) {
+		const reserve = NORMAL_PREFIX.length;
+		const contentWidth = Math.max(1, width - reserve);
+		const lines = super.render(contentWidth);
+		if (!Array.isArray(lines) || lines.length === 0) return lines;
+
+		// borders пропускаем как есть; для не-границ первая получает
+		// NORMAL_PREFIX, остальные — INDENT (continuation). Раньше логика
+		// была «i === 0 → prefix», но в editor.render() i=0 это ВЕРХНЯЯ
+		// ГРАНИЦА, а контент идёт под индексом 1 — поэтому стрелка
+		// никогда не показывалась.
+		let contentSeen = false;
+		return lines.map((line) => {
+			const stripped = String(line).replace(/\x1b\[[0-9;]*m/g, "");
+			if (BORDER_RE.test(stripped)) return line;
+			let prefix;
+			if (!contentSeen) {
+				contentSeen = true;
+				if (this._mode === "bash") prefix = GREEN(BASH_PREFIX);
+				else if (this._mode === "bash-x") prefix = YELLOW(BASH_PREFIX);
+				else prefix = NORMAL_PREFIX;
+			} else {
+				prefix = INDENT;
+			}
+			return prefix + line;
+		});
+	}
+}
+
 export default function (pi) {
 	pi.on("session_start", (_event, ctx) => {
-		const tryWrap = () => {
-			try {
-				const current = ctx.ui.getEditorComponent();
-				if (!current) return false;
-
-				ctx.ui.setEditorComponent((tui, theme, keybindings) => {
-					const base = current(tui, theme, keybindings);
-					if (!base || typeof base.render !== "function") return base;
-
-					const state = { mode: "normal" };
-					const originalBorder = base.borderColor;
-
-					const applyBorder = () => {
-						if (state.mode === "bash") base.borderColor = GREEN;
-						else if (state.mode === "bash-x") base.borderColor = YELLOW;
-						else base.borderColor = originalBorder;
-						base.invalidate?.();
-						base.tui?.requestRender?.();
-					};
-
-					let realHandler = null;
-					Object.defineProperty(base, "onSubmit", {
-						configurable: true,
-						enumerable: true,
-						get() {
-							if (!realHandler) return undefined;
-							return (text) => {
-								if (state.mode === "bash") {
-									state.mode = "normal";
-									applyBorder();
-									return realHandler("!" + text);
-								}
-								if (state.mode === "bash-x") {
-									state.mode = "normal";
-									applyBorder();
-									return realHandler("!!" + text);
-								}
-								return realHandler(text);
-							};
-						},
-						set(handler) {
-							realHandler = handler;
-						},
-					});
-
-					const origHandleInput = base.handleInput.bind(base);
-					base.handleInput = (data) => {
-						const empty = (base.getText?.() ?? "") === "";
-						if (empty && data === "!") {
-							if (state.mode === "normal") state.mode = "bash";
-							else if (state.mode === "bash") state.mode = "bash-x";
-							applyBorder();
-							return;
-						}
-						if (
-							state.mode !== "normal" &&
-							empty &&
-							(data === "\x7f" || data === "\b" || data === "backspace")
-						) {
-							state.mode = "normal";
-							applyBorder();
-							return;
-						}
-						return origHandleInput(data);
-					};
-
-					const origRender = base.render.bind(base);
-					base.render = (width) => {
-						const reserve = NORMAL_PREFIX.length;
-						const contentWidth = Math.max(1, width - reserve);
-						const lines = origRender(contentWidth);
-						if (!Array.isArray(lines) || lines.length === 0) return lines;
-
-						return lines.map((line, i) => {
-							const stripped = String(line).replace(/\x1b\[[0-9;]*m/g, "");
-							if (BORDER_RE.test(stripped)) return line;
-							let prefix;
-							if (i !== 0) {
-								prefix = INDENT;
-							} else if (state.mode === "bash") {
-								prefix = GREEN(BASH_PREFIX);
-							} else if (state.mode === "bash-x") {
-								prefix = YELLOW(BASH_PREFIX);
-							} else {
-								prefix = NORMAL_PREFIX;
-							}
-							return prefix + line;
-						});
-					};
-
-					return base;
-				});
-				return true;
-			} catch {
-				// ctx became stale (session was reloaded between session_start
-				// and the setTimeout firing). Skip — the next session_start
-				// will re-trigger and try again.
-				return false;
-			}
-		};
-
-		// Try synchronously first (fast path when the editor is already up).
-		if (tryWrap()) return;
-		// Fallback: defer past pi's own editor setup.
-		setTimeout(tryWrap, 0);
+		if (!ctx.hasUI) return;
+		ctx.ui.setEditorComponent((tui, theme, keybindings) => {
+			const editor = new PromptArrowEditor(tui, theme, keybindings);
+			editor._initSubmitInterceptor();
+			return editor;
+		});
 	});
 }

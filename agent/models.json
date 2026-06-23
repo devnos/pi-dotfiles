@@ -4,7 +4,7 @@
       "modelOverrides": {
         "MiniMax-M3": {
           "contextWindow": 1048576,
-          "maxTokens": 12288
+          "maxTokens": 524288
         }
       }
     }
